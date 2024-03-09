@@ -1,0 +1,9 @@
+services:
+  db:
+    image: postgres:16
+    environment: 
+      POSTGRES_DB: cool
+      POSTGRES_USER: cool
+      POSTGRES_PASSWORD: coolpassword
+    ports:
+      - "5432:5432"

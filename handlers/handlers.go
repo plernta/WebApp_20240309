@@ -1,35 +1,45 @@
 package handlers
 
 import (
-	"html/template"
 	"net/http"
-	"path/filepath"
+
+	"log" //print on terminal
+
+	"github.com/gorilla/mux"
 )
 
 func IndexPage(w http.ResponseWriter, r *http.Request) {
 	//open index.html template and send its content to the client
-
-	//find all templates in the template directory
-	templates, err := filepath.Glob("templates/*.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//read all templates from the disk
-	t, err := template.ParseFiles(templates...)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	//send template to the client
-	err = t.ExecuteTemplate(w, "index.html", nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	renderTemplate(w, "index.html", nil)
 }
-func AboutPage(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello from Hong\n"))
+
+var users = map[string]map[string]any{
+	"hong": {
+		"Name": "Hong",
+		"City": "Bangkok",
+	},
+
+	"john": {
+		"Name": "John",
+		"City": "Ohio",
+	},
+
+	"lisa": {
+		"Name": "Lisa",
+		"City": "Manhattan",
+	},
+}
+
+func UserPage(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	username := vars["username"]
+
+	user, ok := users[username]
+	log.Printf("User: %v, ok: %v", user, ok)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	renderTemplate(w, "user.html", user)
 }
